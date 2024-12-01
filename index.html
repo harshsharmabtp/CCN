@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Churn Prediction</title>
+    <style>
+        /* Background Color Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4; /* Light gray background */
+            height: 100vh; /* Full screen height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333; /* Default text color */
+        }
+
+        /* Container for the Form */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: rgba(255, 255, 255, 0.8); /* Light background with transparency */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        label {
+            font-size: 14px;
+            display: block;
+            margin-bottom: 8px;
+            text-align: left;
+            color: #333;
+        }
+
+        input[type="number"], input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        /* Result Message Styling */
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .result.success {
+            color: green;
+        }
+
+        .result.error {
+            color: red;
+        }
+
+        /* Responsive Design for smaller screens */
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Customer Churn Prediction</h2>
+        <form id="churn-form">
+            <label for="age">Age</label>
+            <input type="number" id="age" name="age" required>
+
+            <label for="tenure">Tenure (years)</label>
+            <input type="number" id="tenure" name="tenure" required>
+
+            <label for="balance">Account Balance</label>
+            <input type="number" id="balance" name="balance" required>
+
+            <label for="num_of_products">Number of Products</label>
+            <input type="number" id="num_of_products" name="num_of_products" required>
+
+            <label for="has_crcard">Has Credit Card (1 = Yes, 0 = No)</label>
+            <input type="number" id="has_crcard" name="has_crcard" required>
+
+            <label for="is_active_member">Is Active Member (1 = Yes, 0 = No)</label>
+            <input type="number" id="is_active_member" name="is_active_member" required>
+
+            <label for="estimated_salary">Estimated Salary</label>
+            <input type="number" id="estimated_salary" name="estimated_salary" required>
+
+            <input type="submit" value="Submit">
+        </form>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('churn-form').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the form from refreshing the page
+
+            const formData = new FormData(this);
+            const data = {
+                age: formData.get('age'),
+                tenure: formData.get('tenure'),
+                balance: formData.get('balance'),
+                num_of_products: formData.get('num_of_products'),
+                has_crcard: formData.get('has_crcard'),
+                is_active_member: formData.get('is_active_member'),
+                estimated_salary: formData.get('estimated_salary')
+            };
+
+            // Send a POST request to the Python backend (use your server address)
+            fetch('http://localhost:5000/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Show the prediction result
+                const result = document.getElementById('result');
+                if (data.prediction === 1) {
+                    result.textContent = "The customer is likely to churn.";
+                    result.className = 'result error'; // Apply error class
+                } else {
+                    result.textContent = "The customer is likely to stay.";
+                    result.className = 'result success'; // Apply success class
+                }
+            })
+            .catch(error => {
+                document.getElementById('result').textContent = "Error: " + error;
+                document.getElementById('result').classList.add('error');
+            });
+        });
+    </script>
+
+</body>
+</html>
